@@ -1,0 +1,319 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>边缘持续学习 | 半夏琉璃空</title><meta name="author" content="听灵"><meta name="copyright" content="听灵"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="Analytic Federated Learning1. abstract 联邦学习（Federated Learning, FL）是一种协作训练机器学习模型的方法，其目标是保护数据隐私，在分布式的数据孤岛上进行联合模型训练。现有的FL方法主要基于梯度的迭代更新方式，依赖多轮权重聚合，导致了计算效率低、超参数调优困难等问题。为了解决这些挑战，本文提出了一种新的训练范式——分析性联邦学习（AFL）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="边缘持续学习">
+<meta property="og:url" content="http://example.com/2024/09/24/%E8%BE%B9%E7%BC%98%E6%8C%81%E7%BB%AD%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="半夏琉璃空">
+<meta property="og:description" content="Analytic Federated Learning1. abstract 联邦学习（Federated Learning, FL）是一种协作训练机器学习模型的方法，其目标是保护数据隐私，在分布式的数据孤岛上进行联合模型训练。现有的FL方法主要基于梯度的迭代更新方式，依赖多轮权重聚合，导致了计算效率低、超参数调优困难等问题。为了解决这些挑战，本文提出了一种新的训练范式——分析性联邦学习（AFL）">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&risl=&pid=ImgRaw&r=0">
+<meta property="article:published_time" content="2024-09-24T06:55:17.000Z">
+<meta property="article:modified_time" content="2024-09-25T15:32:23.898Z">
+<meta property="article:author" content="听灵">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&risl=&pid=ImgRaw&r=0"><link rel="shortcut icon" href="/images/041_%E6%98%9F%E7%90%83.png"><link rel="canonical" href="http://example.com/2024/09/24/%E8%BE%B9%E7%BC%98%E6%8C%81%E7%BB%AD%E5%AD%A6%E4%B9%A0/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="/-apple-system,Lato" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"你已切换为繁体中文","cht_to_chs":"你已切换为简体中文","day_to_night":"你已切换为深色模式","night_to_day":"你已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-right"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '边缘持续学习',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-09-25 23:32:23'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          const now = new Date()
+          const hour = now.getHours()
+          const isNight = hour <= 6 || hour >= 18
+          if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+          else if (t === 'light') activateLightMode()
+          else activateDarkMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><link rel="stylesheet" href="/css/universe.css"><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 7.1.1"><link href="https://cdn.bootcss.com/KaTeX/0.11.1/katex.min.css" rel="stylesheet" /></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/%E7%AB%A5%E5%BF%83%E4%B9%8B%E4%B9%A6.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&amp;riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&amp;ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&amp;risl=&amp;pid=ImgRaw&amp;r=0')"><nav id="nav"><span id="blog-info"><a href="/" title="半夏琉璃空"><span class="site-name">半夏琉璃空</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">边缘持续学习</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-09-24T06:55:17.000Z" title="发表于 2024-09-24 14:55:17">2024-09-24</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-09-25T15:32:23.898Z" title="更新于 2024-09-25 23:32:23">2024-09-25</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="边缘持续学习"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Analytic-Federated-Learning"><a href="#Analytic-Federated-Learning" class="headerlink" title="Analytic Federated Learning"></a>Analytic Federated Learning</h1><h2 id="1-abstract"><a href="#1-abstract" class="headerlink" title="1. abstract"></a>1. abstract</h2><ul>
+<li>联邦学习（Federated Learning, FL）是一种协作训练机器学习模型的方法，其目标是保护数据隐私，在分布式的数据孤岛上进行联合模型训练。现有的FL方法主要基于梯度的迭代更新方式，依赖多轮权重聚合，导致了计算效率低、超参数调优困难等问题。为了解决这些挑战，本文提出了一种新的训练范式——分析性联邦学习（AFL），其核心在于使用解析（即闭式）解法进行训练和聚合，显著提升了训练效率和稳定性。</li>
+</ul>
+<hr>
+<h2 id="2-contribution"><a href="#2-contribution" class="headerlink" title="2. contribution"></a>2. contribution</h2><ol>
+<li>提出无梯度的联邦学习框架</li>
+<li>实现一次本地训练和一次全局聚合(AA law)</li>
+<li>提出权重不变性和多项优点<ul>
+<li>数据异质性不变性：AFL 在高度非独立同分布（non-IID）数据下依然表现一致。</li>
+<li>客户端数量不变性：客户端数量的变化不会影响最终的聚合结果。</li>
+<li>绝对收敛：由于使用解析解，AFL 不会面临传统FL中的收敛问题。</li>
+<li>无超参数调优：AFL 是第一个完全不需要超参数调优的FL方法。</li>
+</ul>
+</li>
+<li>提出正则化中介（RI）过程</li>
+<li>广泛实验验证<ul>
+<li>在各种非独立同分布（non-IID）数据和大量客户端环境下的实验，验证了AFL在不同设置下的优越性能，显示了其在训练效率、模型性能及稳定性上的优势。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="3-method"><a href="#3-method" class="headerlink" title="3. method"></a>3. method</h2><p>AFL 框架由两个关键阶段组成：<strong>本地训练阶段</strong>和<strong>聚合阶段</strong>。在这两个阶段中，解析解和矩阵运算是核心部分。为了更好地理解 AFL 框架的机制，本报告结合附录中的推导详细解释每一步操作。</p>
+<h3 id="3-1-本地训练阶段"><a href="#3-1-本地训练阶段" class="headerlink" title="3.1 本地训练阶段"></a>3.1 本地训练阶段</h3><p>在本地训练阶段，AFL 通过将神经网络的分类任务转换为线性回归问题，并通过最小二乘法一次性解决，具体步骤如下：</p>
+<h4 id="3-1-1-输入特征提取"><a href="#3-1-1-输入特征提取" class="headerlink" title="3.1.1 输入特征提取"></a>3.1.1 输入特征提取</h4><p>每个客户端通过<strong>backbone</strong>提取数据的嵌入向量。假设客户端$k$拥有数据集$D<em>k$，每个数据点$X</em>{k,i}$经由主干网络$f_{backbone}$生成嵌入向量：</p>
+<script type="math/tex; mode=display">
+x_{k,i} = f_{backbone}(X_{k,i}, \Theta)</script><p>其中，$\Theta$为主干网络的参数，$x_{k,i}$是长度为$y_e$的嵌入向量。</p>
+<h4 id="3-1-2-数据转换与线性回归"><a href="#3-1-2-数据转换与线性回归" class="headerlink" title="3.1.2 数据转换与线性回归"></a>3.1.2 数据转换与线性回归</h4><p>客户端$k$的所有数据可以通过嵌入矩阵$X_k$和标签矩阵$Y_k$表示：</p>
+<script type="math/tex; mode=display">
+X_k = 
+\begin{bmatrix}
+x_{k,1} \\ 
+x_{k,2} \\ 
+\vdots \\ 
+x_{k,N_k}
+\end{bmatrix}
+\quad \text{和} \quad
+Y_k = 
+\begin{bmatrix}
+onehot(y_{k,1}) \\ 
+onehot(y_{k,2}) \\ 
+\vdots \\ 
+onehot(y_{k,N_k})
+\end{bmatrix}</script><p>其中，$X_k \in \mathbb{R}^{N_k \times y_e}$，$Y_k \in \mathbb{R}^{N_k \times C}$，$N_k$是样本数，$C$是类别数。独热编码通过$onehot(\cdot)$操作实现。</p>
+<p>为了将分类任务转化为线性回归问题，AFL 使用最小二乘法求解以下损失函数：</p>
+<script type="math/tex; mode=display">
+L(W_k) = \|Y_k - X_k W_k\|_F^2</script><p>其中，$|\cdot|_F$表示 Frobenius 范数，$W_k$是线性映射矩阵。该优化问题的解析解为：</p>
+<script type="math/tex; mode=display">
+W_k = X_k^\dagger Y_k</script><p>这里，$X_k^\dagger$是 <strong>Moore-Penrose 伪逆</strong>，其定义为能够最小化残差的广义逆矩阵。这一闭式解法允许每个客户端仅需一次迭代即可完成本地模型的训练。</p>
+<h4 id="3-1-3-为什么一次性训练可行？"><a href="#3-1-3-为什么一次性训练可行？" class="headerlink" title="3.1.3 为什么一次性训练可行？"></a>3.1.3 为什么一次性训练可行？</h4><p>虽然早期的解析学习方法（Analytic Learning）更多用于浅层网络，但通过预训练主干网络，我们可以使嵌入特征稳定，从而在本地进行一次性线性回归训练。这种方法在一些复杂场景（如增量学习和强化学习）中已经得到验证，因此适用于个别客户端的训练。</p>
+<h3 id="3-2-聚合阶段"><a href="#3-2-聚合阶段" class="headerlink" title="3.2 聚合阶段"></a>3.2 聚合阶段</h3><h4 id="3-2-1-绝对聚合定律（AA-Law）"><a href="#3-2-1-绝对聚合定律（AA-Law）" class="headerlink" title="3.2.1 绝对聚合定律（AA Law）"></a>3.2.1 绝对聚合定律（AA Law）</h4><p>AFL 的聚合阶段采用<strong>绝对聚合定律（AA Law）</strong>，实现了一轮聚合的目标。该定律的推导基于<strong>Moore-Penrose 伪逆矩阵的分块性质</strong>。</p>
+<h5 id="1-矩阵分块形式"><a href="#1-矩阵分块形式" class="headerlink" title="1. 矩阵分块形式"></a>1. 矩阵分块形式</h5><p>首先，令全局矩阵$X$和标签矩阵$Y$分为两部分：</p>
+<script type="math/tex; mode=display">
+X = \begin{bmatrix} X_u \\ X_v \end{bmatrix}, \quad Y = \begin{bmatrix} Y_u \\ Y_v \end{bmatrix}</script><p>其中，$X_u$和$X_v$分别代表来自不同客户端的输入嵌入矩阵，且它们均为列满秩矩阵。</p>
+<h5 id="2-伪逆的分块形式推导"><a href="#2-伪逆的分块形式推导" class="headerlink" title="2. 伪逆的分块形式推导"></a>2. 伪逆的分块形式推导</h5><p>基于<strong>Moore-Penrose 伪逆的分块逆矩阵公式</strong>，可以将$X$的伪逆$X^\dagger$表示为：</p>
+<script type="math/tex; mode=display">
+X^\dagger = \begin{bmatrix} U \\ V \end{bmatrix}</script><p>其中，$U$和$V$分别是$X_u$和$X_v$的伪逆矩阵</p>
+<script type="math/tex; mode=display">
+U = X_u^\dagger - X_u^\dagger X_v (X_u^\top X_u + X_v^\top X_v)^{-1} X_v^\top X_u^\dagger</script><script type="math/tex; mode=display">
+V = X_v^\dagger - X_v^\dagger X_u (X_u^\top X_u + X_v^\top X_v)^{-1} X_u^\top X_v^\dagger</script><p>根据这个分块逆矩阵公式，我们可以得出两部分独立计算出的权重的加权平均结果。</p>
+<h4 id="3-2-2-权重不变性"><a href="#3-2-2-权重不变性" class="headerlink" title="3.2.2 权重不变性"></a>3.2.2 权重不变性</h4><p>绝对聚合定律不仅仅减少了计算复杂度，还带来了<strong>权重不变性</strong>的特性，即无论数据在各客户端如何分布，最终聚合结果始终一致。这种权重不变性具体体现在：</p>
+<ul>
+<li><strong>数据异质性不变性</strong>：即使客户端的数据分布存在高度异质性（例如 non-IID），AFL 依然能够保持聚合结果的一致性。</li>
+<li><strong>客户端数量不变性</strong>：无论客户端数量是增加还是减少，聚合结果不会受到影响。</li>
+</ul>
+<p>拓展至multi-client scenario</p>
+<script type="math/tex; mode=display">
+\hat W_{\text{agg},k} = W_{\text{agg}}\hat W_{\text{agg},k-1} + W_k \hat W_k.</script><p>让$C<em>u \to C</em>{\text{agg},k-1}$, $C_v \to C_k$有:</p>
+<script type="math/tex; mode=display">
+C_{\text{agg},k} = C_{\text{agg},k-1} + C_k.</script><p>因此:</p>
+<script type="math/tex; mode=display">
+\begin{aligned}
+W_{\text{agg}} &= I - C_{\text{agg},k-1}^{-1} C_k \left( I + C_{\text{agg},k}^{-1} C_k \right), \\
+C_{\text{agg},k} &= C_{\text{agg},k-1} + C_k = \sum_{i=1}^k C_i, \\
+W_k &= I - C_k^{-1} C_{\text{agg},k-1} \left( I + C_{\text{agg},k}^{-1} C_{\text{agg},k-1} \right), \\
+C_i &= X_i^\top X_i.
+\end{aligned}</script><h4 id="3-2-3-正则化中介（RI）过程"><a href="#3-2-3-正则化中介（RI）过程" class="headerlink" title="3.2.3 正则化中介（RI）过程"></a>3.2.3 正则化中介（RI）过程</h4><p>当客户端数量很多时，AA定律可能会由于某些数据的低秩性质而失效。为了解决这个问题，AFL 引入了<strong>正则化中介（RI）过程</strong>。通过在本地训练阶段添加正则化项，保证在大规模客户端场景下的有效性。</p>
+<p>正则化后的损失函数为：</p>
+<script type="math/tex; mode=display">
+L(W_k^r) = \|Y_k - X_k W_k^r\|_F^2 + \gamma \|W_k^r\|_F^2</script><p>这个公式在标准的最小二乘法基础上增加了一个正则化项$\gamma |W_k^r|_F^2$，其中$\gamma$是正则化参数，用于解决低秩问题。该正则化问题的解析解为：</p>
+<script type="math/tex; mode=display">
+W_k^r = (X_k^\top X_k + \gamma I)^{-1} X_k^\top Y_k</script><p>正则化后的权重$W_k^r$不再受到矩阵低秩问题的影响，保证了各个客户端训练出的模型权重可以有效聚合。</p>
+<p>在聚合阶段，正则化项会被移除，通过以下公式恢复原始权重：</p>
+<script type="math/tex; mode=display">
+W = (C_u + C_v)^{-1} (C_u W_u^r + C_v W_v^r)</script><p>这一公式将正则化处理后的权重$W_u^r$和$W_v^r$按照原始数据分布的权重进行加权恢复，确保最终的全局权重与无正则化情况下的权重一致。这个过程有效解决了大规模客户端场景下的秩缺陷问题。</p>
+<h3 id="3-3-正则化中介（RI）过程的推导与性能验证"><a href="#3-3-正则化中介（RI）过程的推导与性能验证" class="headerlink" title="3.3 正则化中介（RI）过程的推导与性能验证"></a>3.3 正则化中介（RI）过程的推导与性能验证</h3><p>正则化中介过程的推导可以从伪逆矩阵的性质入手。正则化项$\gamma$的引入使得即使数据矩阵$X_k$不满秩时，$X_k^\top X_k + \gamma I$依然是正定矩阵，能够求得逆矩阵。最终聚合阶段通过以下步骤去除正则化影响，恢复最终结果。</p>
+<p>正则化后的聚合权重$W^r$的表达式为：</p>
+<script type="math/tex; mode=display">
+W^r = (C_u^r + C_v^r)^{-1} (C_u W_u^r + C_v W_v^r)</script><p>其中，$C_u^r = X_u^\top X_u + \gamma I$，$C_v^r = X_v^\top X_v + \gamma I$，正则化项$\gamma$确保了矩阵的正定性。</p>
+<p>最终在聚合阶段，可以通过以下公式移除正则化项$\gamma$：</p>
+<script type="math/tex; mode=display">
+W = (C_u + C_v)^{-1} (C_u^r + C_v^r) W^r</script><p>这意味着，通过正则化中介过程，AFL 可以在处理大规模客户端时依然保证解析解的最优性和稳定性。</p>
+<hr>
+<h2 id="4-experiments"><a href="#4-experiments" class="headerlink" title="4. experiments"></a>4. experiments</h2><p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/1.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/11.png" alt="alt text"></p>
+<ul>
+<li>使用一个虚拟数据集来测试AA定律，通过计算联合训练的权重和聚合权重之间的偏差（∆W）来完成。</li>
+</ul>
+<hr>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/2.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/222.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/22.png" alt="alt text"></p>
+<ul>
+<li>在CIFAR-10、CIFAR-100和Tiny-ImageNet数据集上，与FedAvg、FedProx、MOON、FedGen、FedDyn、FedNTD和FedDisco等现有FL技术进行比较。</li>
+<li>在非独立同分布（non-IID）设置下，AFL在各种情况下都显示出与其他方法相比有竞争力的性能，并且不受数据异质性的影响。</li>
+</ul>
+<hr>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/3.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/33.png" alt="alt text"></p>
+<ul>
+<li>展示了AFL在不同客户端数量和non-IID程度下的权重不变性。</li>
+<li>在CIFAR-100和Tiny-ImageNet上，随着客户端数量的增加，FedAvg的性能下降，而AFL保持了一致的性能。</li>
+<li>在CIFAR-100数据集上，即使在极端的异质性情况下（例如α = 0.005），AFL也显示出不变的性能。</li>
+</ul>
+<hr>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/4.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/44.png" alt="alt text"></p>
+<ul>
+<li>AFL在一次聚合中完成了训练，与其他需要多轮聚合的FL方法相比，大幅减少了训练时间。</li>
+<li>在CIFAR-100和Tiny-ImageNet数据集上，AFL实现了比现有FL方法快50到100倍的训练速度。</li>
+</ul>
+<hr>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/5.png" alt="alt text"></p>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="../images/federated/55.png" alt="alt text"></p>
+<ul>
+<li>在不同的γ值和客户端数量（K）下，作者研究了RI过程对性能的影响。</li>
+<li>当没有RI过程时，随着K的增加，性能下降，但使用RI过程后，不同γ值下的性能都是一致的。</li>
+</ul>
+<hr>
+<h2 id="code-experient-1"><a href="#code-experient-1" class="headerlink" title="code(experient 1)"></a>code(experient 1)</h2><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">aggregate</span>(<span class="params">W, R, C</span>):</span><br><span class="line">    <span class="comment"># 检查权重列表 W 的长度，如果少于 2，打印信息并返回</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(W) &lt; <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;No need to aggregate&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算前两个权重矩阵的聚合值</span></span><br><span class="line">    Wt = (torch.eye(R[<span class="number">0</span>].shape[<span class="number">0</span>]).double() - R[<span class="number">0</span>] @ C[<span class="number">1</span>] + R[<span class="number">0</span>] @ C[<span class="number">1</span>] @ torch.inverse(C[<span class="number">0</span>] + C[<span class="number">1</span>]) @ C[<span class="number">1</span>]) @ W[<span class="number">0</span>] + \</span><br><span class="line">          (torch.eye(R[<span class="number">0</span>].shape[<span class="number">0</span>]).double() - R[<span class="number">1</span>] @ C[<span class="number">0</span>] + R[<span class="number">1</span>] @ C[<span class="number">0</span>] @ torch.inverse(C[<span class="number">0</span>] + C[<span class="number">1</span>]) @ C[<span class="number">0</span>]) @ W[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 初始化总协方差矩阵和其伪逆</span></span><br><span class="line">    Ct = C[<span class="number">0</span>] + C[<span class="number">1</span>]</span><br><span class="line">    Rt = torch.pinverse(Ct)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 循环处理剩余的权重矩阵</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="built_in">len</span>(W) - <span class="number">1</span>):</span><br><span class="line">        Wt = (torch.eye(R[<span class="number">0</span>].shape[<span class="number">0</span>]).double() - Rt @ C[i + <span class="number">1</span>] + Rt @ C[i + <span class="number">1</span>] @ torch.inverse(Ct + C[i + <span class="number">1</span>]) @ C[i + <span class="number">1</span>]) @ Wt + \</span><br><span class="line">              (torch.eye(R[<span class="number">0</span>].shape[<span class="number">0</span>]).double() - R[i + <span class="number">1</span>] @ Ct + R[i + <span class="number">1</span>] @ Ct @ torch.inverse(Ct + C[i + <span class="number">1</span>]) @ Ct) @ W[i + <span class="number">1</span>]</span><br><span class="line">        Ct = Ct + C[i + <span class="number">1</span>]  <span class="comment"># 更新总协方差矩阵</span></span><br><span class="line">        Rt = torch.pinverse(Ct)  <span class="comment"># 更新伪逆</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Wt, Ct  <span class="comment"># 返回聚合后的权重和协方差矩阵</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">RI</span>(<span class="params">W, C, nc, rg</span>):</span><br><span class="line">    <span class="comment"># 计算 C 矩阵的伪逆，减去正则化项</span></span><br><span class="line">    R_origin = torch.pinverse(C - nc * rg * torch.eye(<span class="number">512</span>).double())</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算更新后的权重</span></span><br><span class="line">    Wt = W + (nc * rg * R_origin) @ W</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Wt  <span class="comment"># 返回更新后的权重</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">generate_data</span>():</span><br><span class="line">    <span class="comment"># 生成随机特征矩阵 X</span></span><br><span class="line">    X = torch.randn(<span class="number">10000</span>, <span class="number">512</span>).double()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 生成随机类别标签 Z_scalar</span></span><br><span class="line">    Z_scalar = torch.randint(low=<span class="number">0</span>, high=<span class="number">10</span>, size=(<span class="number">10000</span>,))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 计算类别数量并创建独热编码矩阵</span></span><br><span class="line">    length = <span class="built_in">len</span>(Z_scalar)</span><br><span class="line">    num_classes = Z_scalar.<span class="built_in">max</span>().item() + <span class="number">1</span></span><br><span class="line">    one_hot_matrix = torch.eye(num_classes)</span><br><span class="line">    Z = one_hot_matrix[Z_scalar].double()  <span class="comment"># 独热编码标签</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> X, Z  <span class="comment"># 返回特征和标签</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">partition_data</span>(<span class="params">X, Z, num_client</span>):    </span><br><span class="line">    <span class="comment"># 初始化客户端的数据存储列表</span></span><br><span class="line">    data_x = []</span><br><span class="line">    data_z = []</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 计算每个客户端的数据量</span></span><br><span class="line">    num_data_per_client = <span class="built_in">int</span>(X.shape[<span class="number">0</span>] / num_client)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 将数据按客户端分割</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_client):</span><br><span class="line">        data_x.append(X[i * num_data_per_client:(i + <span class="number">1</span>) * num_data_per_client])</span><br><span class="line">        data_z.append(Z[i * num_data_per_client:(i + <span class="number">1</span>) * num_data_per_client])</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> data_x, data_z  <span class="comment"># 返回每个客户端的特征和标签</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">training</span>(<span class="params">data_x, data_z, num_client, rg</span>):</span><br><span class="line">    <span class="comment"># 初始化各种矩阵的列表</span></span><br><span class="line">    C, CRg, R, RRg = [], [], [], []</span><br><span class="line">    W, WRg = [], []</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 对每个客户端进行训练</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_client):</span><br><span class="line">        C.append(data_x[i].T @ data_x[i])  <span class="comment"># 计算协方差矩阵</span></span><br><span class="line">        R.append(torch.pinverse(C[i]))  <span class="comment"># 计算其伪逆</span></span><br><span class="line">        CRg.append(data_x[i].T @ data_x[i] + rg * torch.eye(<span class="number">512</span>).double())  <span class="comment"># 带正则化的协方差</span></span><br><span class="line">        RRg.append(torch.pinverse(CRg[i]))  <span class="comment"># 带正则化的伪逆</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 计算权重</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num_client):</span><br><span class="line">        W.append(torch.pinverse(data_x[i]) @ data_z[i])  <span class="comment"># 计算普通权重</span></span><br><span class="line">        WRg.append(RRg[i] @ data_x[i].T @ data_z[i])  <span class="comment"># 计算带正则化的权重</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> C, CRg, R, RRg, W, WRg  <span class="comment"># 返回所有计算的矩阵</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">diff</span>(<span class="params">W_agg, W_total</span>):</span><br><span class="line">    <span class="comment"># 计算聚合权重与总权重之间的绝对差异</span></span><br><span class="line">    <span class="keyword">return</span> torch.<span class="built_in">sum</span>(torch.<span class="built_in">abs</span>(W_total - W_agg)).data  <span class="comment"># 返回差异值</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">runs = <span class="number">5</span>  <span class="comment"># 设定运行次数</span></span><br><span class="line">rg = <span class="number">1</span>  <span class="comment"># 设定正则化参数</span></span><br><span class="line"></span><br><span class="line">num_clients = [<span class="number">2</span>, <span class="number">10</span>, <span class="number">20</span>, <span class="number">50</span>, <span class="number">100</span>, <span class="number">200</span>]  <span class="comment"># 不同的客户端数量</span></span><br><span class="line">diffs_1 = []  <span class="comment"># 存储第一种聚合方式的差异</span></span><br><span class="line">diffs_2 = []  <span class="comment"># 存储第二种聚合方式的差异</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 进行多次实验</span></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> <span class="built_in">range</span>(runs):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Run #&#123;&#125;&quot;</span>.<span class="built_in">format</span>(t))</span><br><span class="line">    X, Z = generate_data()  <span class="comment"># 生成数据</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 计算总协方差和总权重</span></span><br><span class="line">    C_total = X.T @ X</span><br><span class="line">    R_total = torch.pinverse(C_total)</span><br><span class="line">    iX = torch.pinverse(X)</span><br><span class="line">    W_total = iX @ Z</span><br><span class="line"></span><br><span class="line">    diff_per_run_1 = []  <span class="comment"># 存储每次运行的第一种聚合方式的差异</span></span><br><span class="line">    diff_per_run_2 = []  <span class="comment"># 存储每次运行的第二种聚合方式的差异</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> num_client <span class="keyword">in</span> num_clients:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Client amount:&#123;&#125;&quot;</span>.<span class="built_in">format</span>(num_client))</span><br><span class="line">        data_x, data_z = partition_data(X, Z, num_client)  <span class="comment"># 按客户端分割数据</span></span><br><span class="line">        C, CRg, R, RRg, W, WRg = training(data_x, data_z, num_client, rg)  <span class="comment"># 训练并计算矩阵</span></span><br><span class="line">        W_agg, _ = aggregate(W, R, C)  <span class="comment"># 聚合权重</span></span><br><span class="line">        W_aggRg, C_aggRg = aggregate(WRg, RRg, CRg)  <span class="comment"># 聚合正则化权重</span></span><br><span class="line">        W_aggRg_flip = RI(W_aggRg, C_aggRg, num_client, rg)  <span class="comment"># 使用翻转正则化更新权重</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 计算与总权重的差异</span></span><br><span class="line">        diff1 = diff(W_agg, W_total)</span><br><span class="line">        diff2 = diff(W_aggRg_flip, W_total)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 打印差异</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Difference between aggregation of weights with regularization with &#123;&#125; clients in total:&#123;&#125;&quot;</span>.<span class="built_in">format</span>(num_client, diff1))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Difference between aggregation of weights via flipping regularization with &#123;&#125; clients in total:&#123;&#125;&quot;</span>.<span class="built_in">format</span>(num_client, diff2))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 保存每次运行的差异</span></span><br><span class="line">        diff_per_run_1.append(diff1)</span><br><span class="line">        diff_per_run_2.append(diff2)</span><br><span class="line"></span><br><span class="line">    diffs_1.append(diff_per_run_1)  <span class="comment"># 保存所有运行的差异</span></span><br><span class="line">    diffs_2.append(diff_per_run_2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将差异转换为 NumPy 数组</span></span><br><span class="line">diffs_1 = np.array(diffs_1)</span><br><span class="line">diffs_2 = np.array(diffs_2)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算每种方法的平均差异</span></span><br><span class="line">mean1 = np.mean(diffs_1, axis=<span class="number">0</span>)</span><br><span class="line">mean2 = np.mean(diffs_2, axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打印平均差异</span></span><br><span class="line"><span class="built_in">print</span>(mean1)</span><br><span class="line"><span class="built_in">print</span>(mean2)</span><br></pre></td></tr></table></figure>
+<p>query</p>
+<ol>
+<li>在处理更大规模的数据集和模型时是否仍然有效？</li>
+<li>只能用于MSE损失?</li>
+<li>代码只提供了实验1的部分？</li>
+</ol>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="http://example.com">听灵</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2024/09/24/%E8%BE%B9%E7%BC%98%E6%8C%81%E7%BB%AD%E5%AD%A6%E4%B9%A0/">http://example.com/2024/09/24/%E8%BE%B9%E7%BC%98%E6%8C%81%E7%BB%AD%E5%AD%A6%E4%B9%A0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">半夏琉璃空</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a></div><div class="post_share"><div class="social-share" data-image="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&amp;riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&amp;ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&amp;risl=&amp;pid=ImgRaw&amp;r=0" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/09/25/CIL/" title="分析类增量学习"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&amp;riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&amp;ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&amp;risl=&amp;pid=ImgRaw&amp;r=0" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">分析类增量学习</div></div></a></div><div class="next-post pull-right"><a href="/2024/08/12/datawhale(2)/" title="datawhale夏令营(2)"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://pic2.zhimg.com/v2-7f3ed817b58cdf8c7b67924b9e7a8574_r.jpg?source=1940ef5c" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">datawhale夏令营(2)</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/08/11/AIGC%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" title="AIGC快速入门"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&risl=&pid=ImgRaw&r=0" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-11</div><div class="title">AIGC快速入门</div></div></a></div><div><a href="/2024/08/12/datawhale(2)/" title="datawhale夏令营(2)"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://pic2.zhimg.com/v2-7f3ed817b58cdf8c7b67924b9e7a8574_r.jpg?source=1940ef5c" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-08-12</div><div class="title">datawhale夏令营(2)</div></div></a></div><div><a href="/2024/09/25/CIL/" title="分析类增量学习"><img class="cover" src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://ts1.cn.mm.bing.net/th/id/R-C.71904751bb96c56b189b9dbabc2ba1b4?rik=VtWWcd4UwxaVsg&riu=http%3a%2f%2fpic.bizhi360.com%2fbbpic%2f98%2f98_3.jpg&ehk=v9CCwXoRHTk5lT5IaYuIAJxtV2oU8vdmKUV5Qv5kh%2fk%3d&risl=&pid=ImgRaw&r=0" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-09-25</div><div class="title">分析类增量学习</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/images/%E7%AB%A5%E5%BF%83%E4%B9%8B%E4%B9%A6.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">听灵</div><div class="author-info__description">Journey of a thousand miles begins with single step</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/baiyue49"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/baiyue49" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:2082973145@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到我的博客！</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Analytic-Federated-Learning"><span class="toc-number">1.</span> <span class="toc-text">Analytic Federated Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-abstract"><span class="toc-number">1.1.</span> <span class="toc-text">1. abstract</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-contribution"><span class="toc-number">1.2.</span> <span class="toc-text">2. contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-method"><span class="toc-number">1.3.</span> <span class="toc-text">3. method</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%9C%AC%E5%9C%B0%E8%AE%AD%E7%BB%83%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 本地训练阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-1-%E8%BE%93%E5%85%A5%E7%89%B9%E5%BE%81%E6%8F%90%E5%8F%96"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">3.1.1 输入特征提取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-2-%E6%95%B0%E6%8D%AE%E8%BD%AC%E6%8D%A2%E4%B8%8E%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">3.1.2 数据转换与线性回归</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-1-3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%80%E6%AC%A1%E6%80%A7%E8%AE%AD%E7%BB%83%E5%8F%AF%E8%A1%8C%EF%BC%9F"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">3.1.3 为什么一次性训练可行？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%81%9A%E5%90%88%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 聚合阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-1-%E7%BB%9D%E5%AF%B9%E8%81%9A%E5%90%88%E5%AE%9A%E5%BE%8B%EF%BC%88AA-Law%EF%BC%89"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">3.2.1 绝对聚合定律（AA Law）</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E7%9F%A9%E9%98%B5%E5%88%86%E5%9D%97%E5%BD%A2%E5%BC%8F"><span class="toc-number">1.3.2.1.1.</span> <span class="toc-text">1. 矩阵分块形式</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E4%BC%AA%E9%80%86%E7%9A%84%E5%88%86%E5%9D%97%E5%BD%A2%E5%BC%8F%E6%8E%A8%E5%AF%BC"><span class="toc-number">1.3.2.1.2.</span> <span class="toc-text">2. 伪逆的分块形式推导</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-2-%E6%9D%83%E9%87%8D%E4%B8%8D%E5%8F%98%E6%80%A7"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">3.2.2 权重不变性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-2-3-%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%AD%E4%BB%8B%EF%BC%88RI%EF%BC%89%E8%BF%87%E7%A8%8B"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">3.2.3 正则化中介（RI）过程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E6%AD%A3%E5%88%99%E5%8C%96%E4%B8%AD%E4%BB%8B%EF%BC%88RI%EF%BC%89%E8%BF%87%E7%A8%8B%E7%9A%84%E6%8E%A8%E5%AF%BC%E4%B8%8E%E6%80%A7%E8%83%BD%E9%AA%8C%E8%AF%81"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3 正则化中介（RI）过程的推导与性能验证</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-experiments"><span class="toc-number">1.4.</span> <span class="toc-text">4. experiments</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#code-experient-1"><span class="toc-number">1.5.</span> <span class="toc-text">code(experient 1)</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By 听灵</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="/js/tw_cn.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.8.8/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar@0.1.16/dist/snackbar.min.js"></script><script>function panguFn () {
+  if (typeof pangu === 'object') pangu.autoSpacingPage()
+  else {
+    getScript('https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js')
+      .then(() => {
+        pangu.autoSpacingPage()
+      })
+  }
+}
+
+function panguInit () {
+  if (false){
+    GLOBAL_CONFIG_SITE.isPost && panguFn()
+  } else {
+    panguFn()
+  }
+}
+
+document.addEventListener('DOMContentLoaded', panguInit)</script><div class="js-pjax"></div><canvas id="universe"></canvas><script defer src="/js/universe.js"></script><script defer src="/js/cursor.js"></script><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/fireworks.min.js"></script><script id="canvas_nest" defer="defer" color="0,0,255" opacity="0.7" zIndex="-1" count="30" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-nest.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
